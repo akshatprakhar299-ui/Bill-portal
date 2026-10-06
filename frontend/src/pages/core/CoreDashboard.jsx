@@ -21,7 +21,10 @@ export default function CoreDashboard() {
   }
 
   const pending = bills.filter(
-    (b) => b.status === "PENDING_EXECUTIVE" || b.status === "PENDING_ADMIN"
+    (b) =>
+      b.status === "PENDING_EXECUTIVE" ||
+      b.status === "PENDING_ADMIN" ||
+      b.status === "CHANGES_REQUESTED"
   ).length;
 
   const approved = bills.filter(
@@ -29,7 +32,7 @@ export default function CoreDashboard() {
   ).length;
 
   const rejected = bills.filter(
-    (b) => b.status.includes("REJECTED")
+    (b) => b.status === "ADMIN_REJECTED" || b.status === "EXECUTIVE_REJECTED"
   ).length;
 
   return (

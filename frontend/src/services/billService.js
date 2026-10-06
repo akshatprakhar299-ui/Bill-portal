@@ -30,24 +30,40 @@ export async function uploadBill(formData) {
 }
 
 export async function approveExecutive(id) {
-  const { data } = await api.post(`/bills/${id}/approve-executive`);
+  const { data } = await api.post(`/bills/${id}/executive-approve`);
+  return data;
+}
+
+export async function requestExecutiveChanges(id, feedback) {
+  const { data } = await api.post(`/bills/${id}/executive-request-changes`, {
+    reason: feedback,
+  });
   return data;
 }
 
 export async function rejectExecutive(id, reason) {
-  const { data } = await api.post(`/bills/${id}/reject-executive`, {
+  const { data } = await api.post(`/bills/${id}/executive-reject`, {
     reason,
   });
   return data;
 }
 
+export async function resubmitBill(id, formData) {
+  const { data } = await api.post(`/bills/${id}/resubmit`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+}
+
 export async function approveAdmin(id) {
-  const { data } = await api.post(`/bills/${id}/approve-admin`);
+  const { data } = await api.post(`/bills/${id}/admin-approve`);
   return data;
 }
 
 export async function rejectAdmin(id, reason) {
-  const { data } = await api.post(`/bills/${id}/reject-admin`, {
+  const { data } = await api.post(`/bills/${id}/admin-reject`, {
     reason,
   });
   return data;

@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 venv/
 .venv/
+.vercel/
 
 # Environment variables
 .env
@@ -14,6 +15,7 @@ dist/
 
 # Uploaded files
 backend/uploads/
+backend/aces_local.db
 
 # IDE
 .vscode/

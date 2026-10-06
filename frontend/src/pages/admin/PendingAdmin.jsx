@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Eye, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 import BillTable from "../../components/BillTable";
 import {
@@ -77,11 +77,13 @@ export default function PendingAdmin() {
       <section className="section-card">
         <BillTable
           bills={bills}
+          onBillDeleted={(deletedId) =>
+            setBills((currentBills) =>
+              currentBills.filter((bill) => bill.id !== deletedId)
+            )
+          }
           actions={(bill) => (
             <div className="action-row">
-              <button className="small-btn" onClick={() => window.open(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/bills/${bill.id}/file`, "_blank")}>
-                <Eye size={14} /> View
-              </button>
               <button className="approve-btn" disabled={loading} onClick={() => approve(bill.id)}>
                 <Check size={14} /> Final approve
               </button>

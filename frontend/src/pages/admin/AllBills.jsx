@@ -37,10 +37,18 @@ export default function AllBills() {
         <button className={filter === "ADMIN_APPROVED" ? "filter active" : "filter"} onClick={() => setFilter("ADMIN_APPROVED")}>Approved</button>
         <button className={filter === "ADMIN_REJECTED" ? "filter active" : "filter"} onClick={() => setFilter("ADMIN_REJECTED")}>Rejected</button>
         <button className={filter === "PENDING_EXECUTIVE" ? "filter active" : "filter"} onClick={() => setFilter("PENDING_EXECUTIVE")}>Pending Executive</button>
+        <button className={filter === "CHANGES_REQUESTED" ? "filter active" : "filter"} onClick={() => setFilter("CHANGES_REQUESTED")}>Changes Requested</button>
       </div>
 
       <section className="section-card">
-        <BillTable bills={filtered} />
+        <BillTable
+          bills={filtered}
+          onBillDeleted={(deletedId) =>
+            setBills((currentBills) =>
+              currentBills.filter((bill) => bill.id !== deletedId)
+            )
+          }
+        />
       </section>
     </>
   );

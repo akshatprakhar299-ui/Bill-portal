@@ -8,3 +8,4 @@ python-multipart>=0.0.9,<1
 python-dotenv>=1.0,<2
 pydantic[email]>=2.7,<3
 psycopg2-binary
+vercel>=0.11.4,<0.12

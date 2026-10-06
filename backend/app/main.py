@@ -1,16 +1,11 @@
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from app.core.config import FRONTEND_ORIGIN
 from app.database.database import Base, engine
 from app.routers import auth, bills, notifications, users
 
 Base.metadata.create_all(bind=engine)
-
-Path("uploads/bills").mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
     title="ACES Bill Portal API",
@@ -25,8 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.include_router(auth.router)
 app.include_router(users.router)

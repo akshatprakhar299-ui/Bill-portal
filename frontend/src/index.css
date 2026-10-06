@@ -15,8 +15,22 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.feedback-btn {
+  background: #fff1dc;
+
+  color: #8a5a12;
+
+  padding: 9px 13px;
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
 * {
   box-sizing: border-box;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
 }
 
 html {
@@ -348,6 +362,7 @@ a {
 .small-btn,
 .approve-btn,
 .reject-btn,
+.feedback-btn,
 .file-link {
   display: inline-flex;
 
@@ -383,6 +398,11 @@ a {
 .primary-btn:disabled,
 .approve-btn:disabled,
 .reject-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feedback-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -755,6 +775,16 @@ td strong {
   text-overflow: ellipsis;
 
   font-size: 13px;
+}
+
+.feedback-text {
+  white-space: normal;
+
+  overflow: visible;
+
+  overflow-wrap: anywhere;
+
+  text-overflow: clip;
 }
 
 .file-link {

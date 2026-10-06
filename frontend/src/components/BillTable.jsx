@@ -3,8 +3,12 @@ import { ExternalLink, Trash2 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import api from "../services/api";
 import { deleteBill } from "../services/billService";
+import { useAuth } from "../context/AuthContext";
 
 export default function BillTable({ bills, actions, onBillDeleted }) {
+  const { user } = useAuth();
+  const showDeleteColumn = user?.role === "ADMIN" || user?.role === "CORE";
+
   const handleViewBill = async (billId) => {
     const newTab = window.open("", "_blank");
 
@@ -95,7 +99,7 @@ export default function BillTable({ bills, actions, onBillDeleted }) {
             <th>Date</th>
             <th>Status</th>
             <th>Bill</th>
-            <th>Delete</th>
+            {showDeleteColumn && <th>Delete</th>}
             {actions && <th>Action</th>}
           </tr>
         </thead>
@@ -109,6 +113,12 @@ export default function BillTable({ bills, actions, onBillDeleted }) {
                 {bill.description && (
                   <small className="table-sub">
                     {bill.description}
+                  </small>
+                )}
+
+                {bill.status === "CHANGES_REQUESTED" && bill.rejection_reason && (
+                  <small className="table-sub feedback-text">
+                    <strong>Executive feedback:</strong> {bill.rejection_reason}
                   </small>
                 )}
               </td>
@@ -140,17 +150,21 @@ export default function BillTable({ bills, actions, onBillDeleted }) {
                 </button>
               </td>
 
-              <td>
-                <button
-                  type="button"
-                  className="delete-button"
-                  onClick={() => handleDeleteBill(bill.id)}
-                  title="Delete bill"
-                >
-                  <Trash2 size={15} />
-                  Delete
-                </button>
-              </td>
+              {showDeleteColumn && (
+                <td>
+                  {(user.role === "ADMIN" || bill.uploaded_by === user.id) && (
+                    <button
+                      type="button"
+                      className="delete-button"
+                      onClick={() => handleDeleteBill(bill.id)}
+                      title="Delete bill"
+                    >
+                      <Trash2 size={15} />
+                      Delete
+                    </button>
+                  )}
+                </td>
+              )}
 
               {actions && <td>{actions(bill)}</td>}
             </tr>

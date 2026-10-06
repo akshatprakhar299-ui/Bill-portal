@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { Check, Eye, X } from "lucide-react";
+import { Check, MessageSquareText, X } from "lucide-react";
 
 import BillTable from "../../components/BillTable";
 import {
   approveExecutive,
   getPendingExecutiveBills,
   rejectExecutive,
+  requestExecutiveChanges,
 } from "../../services/billService";
 
 export default function PendingExecutive() {
   const [bills, setBills] = useState([]);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
+  const [reviewAction, setReviewAction] = useState("changes");
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,22 +43,27 @@ export default function PendingExecutive() {
     }
   }
 
-  async function reject() {
+  async function submitReviewAction() {
     if (!selected) return;
 
     if (!reason.trim()) {
-      setError("Enter a rejection reason.");
+      setError(reviewAction === "changes" ? "Enter the changes needed." : "Enter a rejection reason.");
       return;
     }
 
+    setError("");
     setLoading(true);
     try {
-      await rejectExecutive(selected.id, reason);
+      if (reviewAction === "changes") {
+        await requestExecutiveChanges(selected.id, reason);
+      } else {
+        await rejectExecutive(selected.id, reason);
+      }
       setSelected(null);
       setReason("");
       await load();
     } catch (err) {
-      setError(err.response?.data?.detail || "Rejection failed.");
+      setError(err.response?.data?.detail || "Could not submit the review decision.");
     } finally {
       setLoading(false);
     }
@@ -79,13 +86,23 @@ export default function PendingExecutive() {
           bills={bills}
           actions={(bill) => (
             <div className="action-row">
-              <button className="small-btn" onClick={() => window.open(`${import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"}/bills/${bill.id}/file`, "_blank")}>
-                <Eye size={14} /> View
-              </button>
               <button className="approve-btn" disabled={loading} onClick={() => approve(bill.id)}>
                 <Check size={14} /> Approve
               </button>
-              <button className="reject-btn" disabled={loading} onClick={() => { setSelected(bill); setReason(""); }}>
+              <button
+                type="button"
+                className="feedback-btn"
+                disabled={loading}
+                onClick={() => { setSelected(bill); setReviewAction("changes"); setReason(""); setError(""); }}
+              >
+                <MessageSquareText size={14} /> Request changes
+              </button>
+              <button
+                type="button"
+                className="reject-btn"
+                disabled={loading}
+                onClick={() => { setSelected(bill); setReviewAction("reject"); setReason(""); setError(""); }}
+              >
                 <X size={14} /> Reject
               </button>
             </div>
@@ -94,23 +111,46 @@ export default function PendingExecutive() {
       </section>
 
       {selected && (
-        <div className="modal-backdrop" onClick={() => setSelected(null)}>
+        <div className="modal-backdrop" onClick={() => !loading && setSelected(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Reject bill</h3>
+            <h3>{reviewAction === "changes" ? "Request changes" : "Reject bill"}</h3>
             <p>
-              Give a clear reason for rejecting <strong>{selected.event_name}</strong>.
+              {reviewAction === "changes"
+                ? <>Explain what the Core team needs to update for <strong>{selected.event_name}</strong>.</>
+                : <>Give a clear reason for rejecting <strong>{selected.event_name}</strong>.</>}
             </p>
+            {error && <div className="alert error">{error}</div>}
+            <label htmlFor="executive-feedback">
+              {reviewAction === "changes" ? "Feedback for the Core team *" : "Rejection reason *"}
+            </label>
             <textarea
+              id="executive-feedback"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows="5"
-              placeholder="Reason for rejection..."
+              placeholder={reviewAction === "changes" ? "Describe the changes needed..." : "Reason for rejection..."}
               autoFocus
             />
             <div className="form-actions">
-              <button className="secondary-btn" onClick={() => setSelected(null)}>Cancel</button>
-              <button className="reject-btn filled" disabled={loading} onClick={reject}>
-                {loading ? "Rejecting..." : "Confirm rejection"}
+              <button
+                type="button"
+                className="secondary-btn"
+                disabled={loading}
+                onClick={() => setSelected(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={reviewAction === "changes" ? "feedback-btn" : "reject-btn"}
+                disabled={loading}
+                onClick={submitReviewAction}
+              >
+                {loading
+                  ? "Submitting..."
+                  : reviewAction === "changes"
+                  ? "Send to Core team"
+                  : "Confirm rejection"}
               </button>
             </div>
           </div>
